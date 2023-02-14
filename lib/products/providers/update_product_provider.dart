@@ -1,5 +1,6 @@
 import 'package:demo_riverpod/products/models/product_model.dart';
 import 'package:demo_riverpod/products/models/validate_form_update_product_model.dart';
+import 'package:demo_riverpod/products/providers/product_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final validateFormUpdateProductNotifier =
@@ -44,3 +45,17 @@ class ValidateFormUpdateProductsNotifier extends StateNotifier<ValidateFormUpdat
     return true;
   }
 }
+
+final fetchDetailProductProvider = FutureProvider.autoDispose.family<ProductModel, int>((ref, productId) async {
+  ref.read(errorMessageFetchProductDetailProvider.notifier).update((state) => "");
+  return await ref.watch(productRepository).fetchProductDetail(productId).then((value) {
+    if (value.hasValue) {
+      return value.asData!.value;
+    } else {
+      ref.read(errorMessageFetchProductDetailProvider.notifier).update((state) => value.asError!.error.toString());
+      return ProductModel();
+    }
+  });
+});
+
+final errorMessageFetchProductDetailProvider = StateProvider.autoDispose((ref) => "");

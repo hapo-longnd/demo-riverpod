@@ -11,6 +11,10 @@ class ProductRepository {
     return await _productDataSource.fetchProduct(limit: limit, offset: offset);
   }
 
+  Future<AsyncValue<ProductModel>> fetchProductDetail(int productId) async {
+    return await _productDataSource.fetchProductDetail(productId);
+  }
+
   Future<AsyncValue<String>> updateProduct(ProductModel product) async {
     return await _productDataSource.updateProduct(product);
   }
