@@ -17,10 +17,36 @@ class ProductDataSource {
         }
         return AsyncData(listProduct);
       } else {
-        return AsyncError("Đã có lỗi xảy ra, Vui lòng thử lại!", StackTrace.current);
+        return AsyncError("Something went wrong, Please try again!", StackTrace.current);
       }
     } catch (e) {
-      return AsyncError("Đã có lỗi xảy ra, Vui lòng thử lại!", StackTrace.current);
+      return AsyncError("Something went wrong, Please try again!", StackTrace.current);
+    }
+  }
+
+  Future<AsyncValue<String>> updateProduct(ProductModel product) async {
+    try {
+      final response = await Dio().put("https://api.escuelajs.co/api/v1/products/${product.id}" , data: product.toJson());
+      if ((response.statusCode! - 200) < 100) {
+        return const AsyncData("Update product success");
+      } else {
+        return AsyncError("Update product fail", StackTrace.current);
+      }
+    } catch (e) {
+      return AsyncError("Something went wrong, Please try again!", StackTrace.current);
+    }
+  }
+
+  Future<AsyncValue<String>> deleteProduct(int productId) async {
+    try {
+      final response = await Dio().delete("https://api.escuelajs.co/api/v1/products/$productId");
+      if ((response.statusCode! - 200) < 100) {
+        return const AsyncData("Delete product success");
+      } else {
+        return AsyncError("Delete product fail", StackTrace.current);
+      }
+    } catch (e) {
+      return AsyncError("Something went wrong, Please try again!", StackTrace.current);
     }
   }
 }

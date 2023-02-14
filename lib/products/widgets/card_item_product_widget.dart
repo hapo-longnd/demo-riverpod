@@ -1,13 +1,30 @@
 import 'package:demo_riverpod/products/models/product_model.dart';
+import 'package:demo_riverpod/products/pages/update_product_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-class CardItemProductWidget extends StatelessWidget {
+import '../../utils/notifications.dart';
+import '../providers/product_provider.dart';
+
+class CardItemProductWidget extends ConsumerWidget {
   final ProductModel? product;
 
-  const CardItemProductWidget({Key? key, this.product}) : super(key: key);
+  CardItemProductWidget({Key? key, this.product}) : super(key: key);
+
+  final ScrollController _scrollController = ScrollController();
+
+  void _showNotificationDeleteProduct(BuildContext context, WidgetRef ref) {
+    ref.listen(messageResultDeleteProductProvider, (previous, next) async {
+      if (next["message"] != null) {
+        await NotificationUtil.showNotificationSnackBar(context: context, content: next["message"], isSuccess: next["isSuccess"]);
+      }
+    });
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    _showNotificationDeleteProduct(context, ref);
     return Container(
       padding: const EdgeInsets.all(8),
       margin: const EdgeInsets.only(bottom: 12),
@@ -27,6 +44,7 @@ class CardItemProductWidget extends StatelessWidget {
         ],
       ),
       child: SingleChildScrollView(
+        controller: _scrollController,
         scrollDirection: Axis.horizontal,
         physics: const ClampingScrollPhysics(),
         child: Row(
@@ -81,7 +99,10 @@ class CardItemProductWidget extends StatelessWidget {
               ),
             ),
             InkWell(
-              onTap: () {},
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UpdateProductPage(product: product)),
+              ),
               child: Column(
                 children: const [
                   Icon(
@@ -106,29 +127,34 @@ class CardItemProductWidget extends StatelessWidget {
             const SizedBox(
               width: 20,
             ),
-            InkWell(
-              onTap: () {},
-              child: Column(
-                children: const [
-                  Icon(
-                    Icons.delete_rounded,
+            ref.watch(showLoadingDeleteProductProvider)["idProduct"] == product!.id && ref.watch(showLoadingDeleteProductProvider)["isShowLoading"]
+                ? const SpinKitCircle(
                     color: Colors.black,
-                    size: 30,
-                  ),
-                  SizedBox(
-                    height: 4,
-                  ),
-                  Text(
-                    "Delete",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                    size: 24,
+                  )
+                : InkWell(
+                    onTap: () => ref.read(productsNotifier.notifier).deleteProduct(product!.id ?? 0),
+                    child: Column(
+                      children: const [
+                        Icon(
+                          Icons.delete_rounded,
+                          color: Colors.black,
+                          size: 30,
+                        ),
+                        SizedBox(
+                          height: 4,
+                        ),
+                        Text(
+                          "Delete",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
           ],
         ),
       ),

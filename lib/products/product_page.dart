@@ -1,8 +1,9 @@
-import 'package:demo_riverpod/products/models/product_model.dart';
 import 'package:demo_riverpod/products/providers/product_provider.dart';
 import 'package:demo_riverpod/products/widgets/card_item_product_widget.dart';
+import 'package:demo_riverpod/utils/notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class ProductsPage extends ConsumerStatefulWidget {
   const ProductsPage({
@@ -29,6 +30,31 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white.withOpacity(0.8),
+          centerTitle: true,
+          title: const Text(
+            "Product Page",
+            style: TextStyle(
+              color: Colors.green,
+              fontSize: 26,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          actions: [
+            InkWell(
+              onTap: () => ref.read(productsNotifier.notifier).fetchProduct(),
+              child: Container(
+                margin: const EdgeInsets.only(right: 16),
+                child: const Icon(
+                  Icons.replay_circle_filled,
+                  color: Colors.green,
+                  size: 30,
+                ),
+              ),
+            ),
+          ],
+        ),
         body: SafeArea(
           child: Container(
             padding: const EdgeInsets.all(16),
@@ -102,7 +128,7 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                         ),
                       ),
                       loading: () => const Center(
-                        child: CircularProgressIndicator(color: Colors.green),
+                        child: SpinKitCircle(color: Colors.green, size: 26),
                       ),
                     ),
                   ),
