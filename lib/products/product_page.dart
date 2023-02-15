@@ -1,8 +1,7 @@
 import 'package:demo_riverpod/products/pages/search_result_page.dart';
+import 'package:demo_riverpod/products/pages/shopping_cart_page.dart';
 import 'package:demo_riverpod/products/providers/product_provider.dart';
-import 'package:demo_riverpod/products/providers/search_result_provider.dart';
 import 'package:demo_riverpod/products/widgets/card_item_product_widget.dart';
-import 'package:demo_riverpod/utils/notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -22,8 +21,10 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
   @override
   void initState() {
     // TODO: implement initState
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      ref.read(productsNotifier.notifier).fetchProduct();
+    });
     super.initState();
-    ref.read(productsNotifier.notifier).fetchProduct();
   }
 
   @override
@@ -43,18 +44,29 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
               fontWeight: FontWeight.w500,
             ),
           ),
+          leading: InkWell(
+            onTap: () => ref.read(productsNotifier.notifier).fetchProduct(),
+            child: const Icon(
+              Icons.replay_circle_filled,
+              color: Colors.green,
+              size: 30,
+            ),
+          ),
           actions: [
-            InkWell(
-              onTap: () => ref.read(productsNotifier.notifier).fetchProduct(),
-              child: Container(
-                margin: const EdgeInsets.only(right: 16),
+            Padding(
+              padding: const EdgeInsets.only(right: 12.0),
+              child: InkWell(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ShoppingCartPage()),
+                ),
                 child: const Icon(
-                  Icons.replay_circle_filled,
-                  color: Colors.green,
+                  Icons.shopping_cart_checkout,
                   size: 30,
+                  color: Colors.green,
                 ),
               ),
-            ),
+            )
           ],
         ),
         body: SafeArea(

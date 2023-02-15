@@ -1,4 +1,5 @@
 import 'package:demo_riverpod/products/models/product_model.dart';
+import 'package:demo_riverpod/products/pages/product_detail_page.dart';
 import 'package:demo_riverpod/products/pages/update_product_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,8 +10,9 @@ import '../providers/product_provider.dart';
 
 class CardItemProductWidget extends ConsumerWidget {
   final ProductModel? product;
+  final int? quantityInShoppingCart;
 
-  CardItemProductWidget({Key? key, this.product}) : super(key: key);
+  CardItemProductWidget({Key? key, this.product, this.quantityInShoppingCart}) : super(key: key);
 
   final ScrollController _scrollController = ScrollController();
 
@@ -28,16 +30,13 @@ class CardItemProductWidget extends ConsumerWidget {
     return InkWell(
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => UpdateProductPage(product: product)),
+        MaterialPageRoute(builder: (context) => ProductDetailPage(productId: product!.id ?? -1)),
       ),
       child: Container(
         padding: const EdgeInsets.all(8),
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(16),
-            bottomLeft: Radius.circular(16),
-          ),
+          borderRadius: BorderRadius.circular(16),
           color: Colors.white,
           boxShadow: [
             BoxShadow(
@@ -73,16 +72,53 @@ class CardItemProductWidget extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            product!.title ?? "",
-                            style: const TextStyle(
-                              color: Colors.green,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  product!.title ?? "",
+                                  style: const TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                              if (quantityInShoppingCart != null)
+                                Row(
+                                  children: [
+                                    InkWell(
+                                      onTap: () {},
+                                      child: const Icon(
+                                        Icons.remove_circle,
+                                        size: 18,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      quantityInShoppingCart != null ? quantityInShoppingCart.toString() : "",
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    InkWell(
+                                      onTap: () {},
+                                      child: const Icon(
+                                        Icons.add_circle,
+                                        size: 18,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
                           ),
                           Text(
-                            "Price : ${product!.price ?? ""}",
+                            "Price : ${product!.price ?? ""}\u0024",
                             style: const TextStyle(
                               color: Colors.black,
                               fontSize: 16,
@@ -103,32 +139,33 @@ class CardItemProductWidget extends ConsumerWidget {
                   ],
                 ),
               ),
-              InkWell(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => UpdateProductPage(product: product)),
-                ),
-                child: Column(
-                  children: const [
-                    Icon(
-                      Icons.edit_note,
-                      color: Colors.red,
-                      size: 30,
-                    ),
-                    SizedBox(
-                      height: 4,
-                    ),
-                    Text(
-                      "Edit",
-                      style: TextStyle(
+              if (quantityInShoppingCart == null)
+                InkWell(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => UpdateProductPage(product: product)),
+                  ),
+                  child: Column(
+                    children: const [
+                      Icon(
+                        Icons.edit_note,
                         color: Colors.red,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                        size: 30,
                       ),
-                    ),
-                  ],
+                      SizedBox(
+                        height: 4,
+                      ),
+                      Text(
+                        "Edit",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
               const SizedBox(
                 width: 20,
               ),

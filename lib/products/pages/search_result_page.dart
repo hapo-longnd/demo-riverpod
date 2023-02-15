@@ -1,4 +1,3 @@
-import 'package:demo_riverpod/products/models/product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -19,7 +18,7 @@ class _SearchResultWidgetState extends ConsumerState<SearchResultWidget> {
   @override
   void initState() {
     // TODO: implement initState
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       ref.read(searchResultNotifier.notifier).searchProduct(widget.searchText ?? "");
     });
     super.initState();
