@@ -26,7 +26,9 @@ class ProductsNotifier extends StateNotifier<AsyncValue<List<ProductModel>>> {
     state = const AsyncLoading();
     await _productRepository.fetchProduct(limit: limit, offset: offset).then((value) {
       if (value.hasValue) {
-        state = AsyncData(value.asData!.value);
+        List<ProductModel> temp = value.asData!.value;
+        temp.removeWhere((element) => element.images!.any((el) => !el.contains("http")));
+        state = AsyncData(temp);
       } else {
         state = AsyncError(value.asError!.error.toString(), StackTrace.current);
       }

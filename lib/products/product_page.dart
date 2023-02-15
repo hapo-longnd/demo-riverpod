@@ -1,4 +1,6 @@
+import 'package:demo_riverpod/products/pages/search_result_page.dart';
 import 'package:demo_riverpod/products/providers/product_provider.dart';
+import 'package:demo_riverpod/products/providers/search_result_provider.dart';
 import 'package:demo_riverpod/products/widgets/card_item_product_widget.dart';
 import 'package:demo_riverpod/utils/notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -96,7 +98,16 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                           Positioned(
                             right: 8,
                             child: InkWell(
-                              onTap: () {},
+                              onTap: () async {
+                                FocusScope.of(context).unfocus();
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SearchResultWidget(searchText: _searchController.text),
+                                  ),
+                                );
+                                _searchController.text = "";
+                              },
                               child: const Icon(
                                 Icons.search,
                                 color: Colors.blue,
@@ -113,10 +124,19 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                   child: Container(
                     margin: const EdgeInsets.only(top: 16),
                     child: productProvider.when(
-                      data: (products) => ListView.builder(
-                        itemCount: products.length,
-                        itemBuilder: (_, index) => CardItemProductWidget(product: products[index]),
-                      ),
+                      data: (products) => products.isEmpty
+                          ? const Text(
+                              "No data",
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            )
+                          : ListView.builder(
+                              itemCount: products.length,
+                              itemBuilder: (_, index) => CardItemProductWidget(product: products[index]),
+                            ),
                       error: (Object error, StackTrace stackTrace) => Center(
                         child: Text(
                           error.toString(),
