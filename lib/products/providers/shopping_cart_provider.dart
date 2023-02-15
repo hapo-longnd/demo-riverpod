@@ -29,6 +29,16 @@ class ShoppingCartNotifier extends StateNotifier<AsyncValue<List<ItemShoppingCar
     state = AsyncData(temp);
   }
 
+  void incrementOrDecrementQuantity(int productId, int type) {
+    List<ItemShoppingCartModel> temp = state.value ?? [];
+    int indexItem = temp.indexWhere((element) => element.product!.id == productId);
+    temp[indexItem].quantity = temp[indexItem].quantity! + type;
+    if (temp[indexItem].quantity! <= 0) {
+      temp.removeAt(indexItem);
+    }
+    state = AsyncData(temp);
+  }
+
   Future<void> removeFromCart(int productId) async {
     List<ItemShoppingCartModel>? temp = state.value ?? [];
     temp.removeWhere((element) => element.product!.id == productId);

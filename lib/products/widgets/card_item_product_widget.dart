@@ -1,6 +1,7 @@
 import 'package:demo_riverpod/products/models/product_model.dart';
 import 'package:demo_riverpod/products/pages/product_detail_page.dart';
 import 'package:demo_riverpod/products/pages/update_product_page.dart';
+import 'package:demo_riverpod/products/providers/shopping_cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -88,7 +89,7 @@ class CardItemProductWidget extends ConsumerWidget {
                                 Row(
                                   children: [
                                     InkWell(
-                                      onTap: () {},
+                                      onTap: () => ref.read(shoppingCartNotifier.notifier).incrementOrDecrementQuantity(product!.id!, -1),
                                       child: const Icon(
                                         Icons.remove_circle,
                                         size: 18,
@@ -106,7 +107,7 @@ class CardItemProductWidget extends ConsumerWidget {
                                     ),
                                     const SizedBox(width: 4),
                                     InkWell(
-                                      onTap: () {},
+                                      onTap: () => ref.read(shoppingCartNotifier.notifier).incrementOrDecrementQuantity(product!.id!, 1),
                                       child: const Icon(
                                         Icons.add_circle,
                                         size: 18,
