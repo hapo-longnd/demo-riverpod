@@ -24,6 +24,19 @@ class ProductDataSource {
     }
   }
 
+  Future<AsyncValue<ProductModel>> fetchProductDetail(int productId) async {
+    try {
+      final response = await Dio().put("https://api.escuelajs.co/api/v1/products/$productId");
+      if ((response.statusCode! - 200) < 100) {
+        return AsyncData(ProductModel.fromJson(response.data));
+      } else {
+        return AsyncError("Fetch product detail fail", StackTrace.current);
+      }
+    } catch (e) {
+      return AsyncError("Something went wrong, Please try again!", StackTrace.current);
+    }
+  }
+
   Future<AsyncValue<String>> updateProduct(ProductModel product) async {
     try {
       final response = await Dio().put("https://api.escuelajs.co/api/v1/products/${product.id}" , data: product.toJson());

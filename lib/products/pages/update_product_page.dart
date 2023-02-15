@@ -25,9 +25,7 @@ class _UpdateProductPageState extends ConsumerState<UpdateProductPage> {
   @override
   void initState() {
     // TODO: implement initState
-    _titleController.text = widget.product!.title ?? "";
-    _priceController.text = widget.product!.price != null ? widget.product!.price.toString() : "";
-    _descriptionController.text = widget.product!.description ?? "";
+    ref.read(fetchDetailProductProvider(widget.product!.id ?? 0));
     super.initState();
   }
 
@@ -42,10 +40,25 @@ class _UpdateProductPageState extends ConsumerState<UpdateProductPage> {
     });
   }
 
+  void _showNotificationFetchProductDetail() {
+    ref.listen(errorMessageFetchProductDetailProvider, (previous, next) async {
+      if (next.isNotEmpty) {
+        await NotificationUtil.showNotificationSnackBar(context: context, content: next, isSuccess: false);
+      }
+      else{
+        final productDetail = ref.watch(fetchDetailProductProvider(widget.product!.id ?? 0));
+        _titleController.text = productDetail.asData!.value.title ?? "";
+        _priceController.text = productDetail.asData!.value.price != null ? productDetail.asData!.value.price.toString() : "";
+        _descriptionController.text = productDetail.asData!.value.description ?? "";
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     ValidateFormUpdateProductModel validateFormUpdateProductProvider = ref.watch(validateFormUpdateProductNotifier);
     _showNotificationUpdateProduct();
+    _showNotificationFetchProductDetail();
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
