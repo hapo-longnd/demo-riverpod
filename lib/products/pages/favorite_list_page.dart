@@ -1,34 +1,32 @@
-import 'package:demo_riverpod/products/providers/shopping_cart_provider.dart';
+import 'package:demo_riverpod/products/providers/favorite_list_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-import '../models/item_shopping_cart_model.dart';
+import '../models/product_model.dart';
 import '../widgets/card_item_product_widget.dart';
 
-class ShoppingCartPage extends ConsumerStatefulWidget {
-  const ShoppingCartPage({
-    Key? key,
-  }) : super(key: key);
+class FavoriteListPage extends ConsumerStatefulWidget {
+  const FavoriteListPage({Key? key}) : super(key: key);
 
   @override
-  ConsumerState createState() => _ShoppingCartPageState();
+  ConsumerState createState() => _FavoriteListPageState();
 }
 
-class _ShoppingCartPageState extends ConsumerState<ShoppingCartPage> {
+class _FavoriteListPageState extends ConsumerState<FavoriteListPage> {
   @override
   void initState() {
     // TODO: implement initState
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref.read(shoppingCartNotifierProvider.notifier).fetchShoppingCart();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(favoriteListNotifierProvider.notifier).fetchFavoriteList();
     });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    AsyncValue<List<ItemShoppingCartModel>> shoppingCartProvider = ref.watch(shoppingCartNotifierProvider);
-    bool isShowLoadingFetchCart = ref.watch(isShowLoadingFetchCartProvider);
+    AsyncValue<List<ProductModel>> favoriteListProvider = ref.watch(favoriteListNotifierProvider);
+    bool isShowLoadingFetchFavoriteList = ref.watch(isShowLoadingFetchFavoriteListProvider);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -36,7 +34,7 @@ class _ShoppingCartPageState extends ConsumerState<ShoppingCartPage> {
         elevation: 0,
         centerTitle: true,
         title: const Text(
-          "Shopping Cart",
+          "Favorite List",
           style: TextStyle(
             color: Colors.white,
             fontSize: 22,
@@ -51,27 +49,14 @@ class _ShoppingCartPageState extends ConsumerState<ShoppingCartPage> {
             color: Colors.white,
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12.0),
-            child: InkWell(
-              onTap: () => ref.read(shoppingCartNotifierProvider.notifier).removeAllCart(),
-              child: const Icon(
-                Icons.delete_outline,
-                size: 26,
-                color: Colors.white,
-              ),
-            ),
-          )
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: isShowLoadingFetchCart
+        child: isShowLoadingFetchFavoriteList
             ? const Center(
                 child: SpinKitCircle(color: Colors.green, size: 26),
               )
-            : shoppingCartProvider.when(
+            : favoriteListProvider.when(
                 data: (products) => products.isEmpty
                     ? const Center(
                         child: Text(
@@ -85,8 +70,10 @@ class _ShoppingCartPageState extends ConsumerState<ShoppingCartPage> {
                       )
                     : ListView.builder(
                         itemCount: products.length,
-                        itemBuilder: (_, index) =>
-                            CardItemProductWidget(product: products[index].product, quantityInShoppingCart: products[index].quantity),
+                        itemBuilder: (_, index) => CardItemProductWidget(
+                          product: products[index],
+                          isInFavoriteList: true,
+                        ),
                       ),
                 error: (Object error, StackTrace stackTrace) => Center(
                   child: Text(

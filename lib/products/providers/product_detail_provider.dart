@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/product_model.dart';
 import '../service/product_repository.dart';
 
-final productsDetailNotifier = StateNotifierProvider.autoDispose.family<ProductDetailNotifier, AsyncValue<ProductModel>, int>((ref, productId) {
+final productsDetailNotifierProvider = StateNotifierProvider.autoDispose.family<ProductDetailNotifier, AsyncValue<ProductModel>, int>((ref, productId) {
   return ProductDetailNotifier(ref.watch(productRepository), ref, productId);
 });
 

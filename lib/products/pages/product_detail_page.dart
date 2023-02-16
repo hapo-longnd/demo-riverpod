@@ -1,5 +1,6 @@
 import 'package:demo_riverpod/products/models/item_shopping_cart_model.dart';
 import 'package:demo_riverpod/products/pages/shopping_cart_page.dart';
+import 'package:demo_riverpod/products/providers/favorite_list_provider.dart';
 import 'package:demo_riverpod/products/providers/product_detail_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,7 +25,7 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
   void initState() {
     // TODO: implement initState
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref.read(productsDetailNotifier(widget.productId ?? -1).notifier).fetchProductDetail();
+      ref.read(productsDetailNotifierProvider(widget.productId ?? -1).notifier).fetchProductDetail();
     });
     super.initState();
   }
@@ -42,9 +43,11 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    AsyncValue<ProductModel> productDetailProvider = ref.watch(productsDetailNotifier(widget.productId ?? -1));
-    bool isShowLoadingShoppingCart = ref.watch(isShowLoadingAddToCartProvider);
+    AsyncValue<ProductModel> productDetailProvider = ref.watch(productsDetailNotifierProvider(widget.productId ?? -1));
+    bool isShowLoadingAddToShoppingCart = ref.watch(isShowLoadingAddToCartProvider);
     String errorMessageAddToCard = ref.watch(errorMessageAddToCardProvider);
+    AsyncValue<List<ProductModel>> favoriteListProvider = ref.watch(favoriteListNotifierProvider);
+    Map<String, dynamic> isShowLoadingAddToFavoriteList = ref.watch(isShowLoadingAddFavoriteListProvider(null));
     _listenAddToCartSuccess();
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -218,26 +221,36 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                                     ),
                                   ),
                                 ),
-                                Column(
-                                  children: [
-                                    InkWell(
-                                      onTap: () {},
-                                      child: const Icon(
-                                        Icons.favorite,
-                                        color: Colors.red,
-                                        size: 24,
-                                      ),
-                                    ),
-                                    const Text(
-                                      "Add Favorite",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                !isShowLoadingAddToFavoriteList["status"]
+                                    ? Column(
+                                        children: [
+                                          InkWell(
+                                            onTap: () {
+                                              if (favoriteListProvider.value!.indexWhere((element) => element.id == product.id) != -1) {
+                                                ref.read(favoriteListNotifierProvider.notifier).removeFromFavoriteList(product.id!);
+                                              } else {
+                                                ref.read(favoriteListNotifierProvider.notifier).addToFavoriteList(product);
+                                              }
+                                            },
+                                            child: Icon(
+                                              Icons.favorite,
+                                              color: favoriteListProvider.value!.indexWhere((element) => element.id == product.id) != -1
+                                                  ? Colors.red
+                                                  : Colors.grey,
+                                              size: 24,
+                                            ),
+                                          ),
+                                          const Text(
+                                            "Add Favorite",
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : const SpinKitCircle(color: Colors.grey, size: 18),
                               ],
                             ),
                             if (errorMessageAddToCard.isNotEmpty)
@@ -258,9 +271,9 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                                 if (_quantityController.text.trim().isEmpty) {
                                   ref.read(errorMessageAddToCardProvider.notifier).update((state) => "This field is required to enter");
                                 } else {
-                                  if (!isShowLoadingShoppingCart) {
+                                  if (!isShowLoadingAddToShoppingCart) {
                                     ref
-                                        .read(shoppingCartNotifier.notifier)
+                                        .read(shoppingCartNotifierProvider.notifier)
                                         .addToCart(ItemShoppingCartModel(quantity: int.parse(_quantityController.text), product: product));
                                   }
                                 }
@@ -274,7 +287,7 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                                   color: Colors.red,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: isShowLoadingShoppingCart
+                                child: isShowLoadingAddToShoppingCart
                                     ? const SpinKitCircle(color: Colors.white, size: 20)
                                     : const Text(
                                         "Add To Card",

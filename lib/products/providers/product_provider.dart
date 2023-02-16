@@ -12,7 +12,7 @@ final productRepository = Provider.autoDispose((ref) {
   return ProductRepository(productDatasource);
 });
 
-final productsNotifier = StateNotifierProvider.autoDispose<ProductsNotifier, AsyncValue<List<ProductModel>>>((ref) {
+final productsNotifierProvider = StateNotifierProvider.autoDispose<ProductsNotifier, AsyncValue<List<ProductModel>>>((ref) {
   return ProductsNotifier(ref.watch(productRepository), ref);
 });
 

@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/item_shopping_cart_model.dart';
 
-final shoppingCartNotifier = StateNotifierProvider.autoDispose<ShoppingCartNotifier, AsyncValue<List<ItemShoppingCartModel>>>((ref) {
+final shoppingCartNotifierProvider = StateNotifierProvider.autoDispose<ShoppingCartNotifier, AsyncValue<List<ItemShoppingCartModel>>>((ref) {
   ref.keepAlive();
   return ShoppingCartNotifier(ref);
 });
@@ -14,7 +14,7 @@ class ShoppingCartNotifier extends StateNotifier<AsyncValue<List<ItemShoppingCar
 
   Future<void> fetchShoppingCart() async {
     ref.read(isShowLoadingFetchCartProvider.notifier).update((state) => true);
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
     ref.read(isShowLoadingFetchCartProvider.notifier).update((state) => false);
     List<ItemShoppingCartModel>? temp = state.value ?? [];
     state = AsyncData(temp);
@@ -22,7 +22,7 @@ class ShoppingCartNotifier extends StateNotifier<AsyncValue<List<ItemShoppingCar
 
   Future<void> addToCart(ItemShoppingCartModel product) async {
     ref.read(isShowLoadingAddToCartProvider.notifier).update((state) => true);
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 1));
     List<ItemShoppingCartModel> temp = state.value ?? [];
     temp.insert(0, product);
     ref.read(isShowLoadingAddToCartProvider.notifier).update((state) => false);
@@ -46,7 +46,9 @@ class ShoppingCartNotifier extends StateNotifier<AsyncValue<List<ItemShoppingCar
   }
 
   Future<void> removeAllCart() async {
-    state = const AsyncData([]);
+    List<ItemShoppingCartModel>? temp = state.value ?? [];
+    temp.removeRange(0, state.value!.length);
+    state = AsyncData(temp);
   }
 }
 

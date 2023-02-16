@@ -11,7 +11,7 @@ final searchTextProvider = StateProvider.autoDispose.family<String, String>((ref
   }
 });
 
-final searchResultNotifier = StateNotifierProvider.autoDispose<SearchResultNotifier, AsyncValue<List<ProductModel>>>((ref) {
+final searchResultNotifierProvider = StateNotifierProvider.autoDispose<SearchResultNotifier, AsyncValue<List<ProductModel>>>((ref) {
   return SearchResultNotifier(ref);
 });
 
@@ -23,7 +23,7 @@ class SearchResultNotifier extends StateNotifier<AsyncValue<List<ProductModel>>>
   Future<void> searchProduct(String searchText) async {
     ref.read(searchTextProvider(searchText));
     state = const AsyncLoading();
-    final listProduct = ref.read(productsNotifier);
+    final listProduct = ref.read(productsNotifierProvider);
     await Future.delayed(const Duration(seconds: 3));
     state = AsyncData(listProduct.value!
         .where((element) =>

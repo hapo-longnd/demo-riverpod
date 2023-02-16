@@ -2,7 +2,7 @@ import 'package:demo_riverpod/products/models/product_model.dart';
 import 'package:demo_riverpod/products/models/validate_form_update_product_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final validateFormUpdateProductNotifier =
+final validateFormUpdateProductNotifierProvider =
     StateNotifierProvider.autoDispose<ValidateFormUpdateProductsNotifier, ValidateFormUpdateProductModel>((ref) {
   return ValidateFormUpdateProductsNotifier();
 });

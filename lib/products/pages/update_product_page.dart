@@ -44,7 +44,7 @@ class _UpdateProductPageState extends ConsumerState<UpdateProductPage> {
 
   @override
   Widget build(BuildContext context) {
-    ValidateFormUpdateProductModel validateFormUpdateProductProvider = ref.watch(validateFormUpdateProductNotifier);
+    ValidateFormUpdateProductModel validateFormUpdateProductProvider = ref.watch(validateFormUpdateProductNotifierProvider);
     _showNotificationUpdateProduct();
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -96,8 +96,8 @@ class _UpdateProductPageState extends ConsumerState<UpdateProductPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    onChanged: (value) => ref.read(validateFormUpdateProductNotifier.notifier).validateFieldTitle(value),
-                    onEditingComplete: () => ref.read(validateFormUpdateProductNotifier.notifier).validateFieldTitle(_titleController.text.trim()),
+                    onChanged: (value) => ref.read(validateFormUpdateProductNotifierProvider.notifier).validateFieldTitle(value),
+                    onEditingComplete: () => ref.read(validateFormUpdateProductNotifierProvider.notifier).validateFieldTitle(_titleController.text.trim()),
                   ),
                   if (validateFormUpdateProductProvider.errorMessageTitle != null && validateFormUpdateProductProvider.errorMessageTitle!.isNotEmpty)
                     Container(
@@ -139,8 +139,8 @@ class _UpdateProductPageState extends ConsumerState<UpdateProductPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    onChanged: (value) => ref.read(validateFormUpdateProductNotifier.notifier).validateFieldPrice(value),
-                    onEditingComplete: () => ref.read(validateFormUpdateProductNotifier.notifier).validateFieldPrice(_priceController.text.trim()),
+                    onChanged: (value) => ref.read(validateFormUpdateProductNotifierProvider.notifier).validateFieldPrice(value),
+                    onEditingComplete: () => ref.read(validateFormUpdateProductNotifierProvider.notifier).validateFieldPrice(_priceController.text.trim()),
                   ),
                   if (validateFormUpdateProductProvider.errorMessagePrice != null && validateFormUpdateProductProvider.errorMessagePrice!.isNotEmpty)
                     Container(
@@ -182,9 +182,9 @@ class _UpdateProductPageState extends ConsumerState<UpdateProductPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    onChanged: (value) => ref.read(validateFormUpdateProductNotifier.notifier).validateFieldDescription(value),
+                    onChanged: (value) => ref.read(validateFormUpdateProductNotifierProvider.notifier).validateFieldDescription(value),
                     onEditingComplete: () =>
-                        ref.read(validateFormUpdateProductNotifier.notifier).validateFieldDescription(_descriptionController.text.trim()),
+                        ref.read(validateFormUpdateProductNotifierProvider.notifier).validateFieldDescription(_descriptionController.text.trim()),
                   ),
                   if (validateFormUpdateProductProvider.errorMessageDescription != null &&
                       validateFormUpdateProductProvider.errorMessageDescription!.isNotEmpty)
@@ -216,8 +216,8 @@ class _UpdateProductPageState extends ConsumerState<UpdateProductPage> {
                               updatedAt: widget.product!.updatedAt,
                               category: widget.product!.category,
                             );
-                            if (ref.read(validateFormUpdateProductNotifier.notifier).submitFormUpdateProduct(product)) {
-                              ref.read(productsNotifier.notifier).updateProduct(product);
+                            if (ref.read(validateFormUpdateProductNotifierProvider.notifier).submitFormUpdateProduct(product)) {
+                              ref.read(productsNotifierProvider.notifier).updateProduct(product);
                             }
                           }
                         },

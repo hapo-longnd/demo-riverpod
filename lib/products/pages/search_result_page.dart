@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
+import '../models/product_model.dart';
 import '../providers/search_result_provider.dart';
 import '../widgets/card_item_product_widget.dart';
 
@@ -19,15 +20,15 @@ class _SearchResultWidgetState extends ConsumerState<SearchResultWidget> {
   void initState() {
     // TODO: implement initState
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref.read(searchResultNotifier.notifier).searchProduct(widget.searchText ?? "");
+      ref.read(searchResultNotifierProvider.notifier).searchProduct(widget.searchText ?? "");
     });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final searchResultProvider = ref.watch(searchResultNotifier);
-    final searchText = ref.watch(searchTextProvider(widget.searchText ?? ""));
+    AsyncValue<List<ProductModel>> searchResultProvider = ref.watch(searchResultNotifierProvider);
+    String searchText = ref.watch(searchTextProvider(widget.searchText ?? ""));
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
@@ -42,7 +43,7 @@ class _SearchResultWidgetState extends ConsumerState<SearchResultWidget> {
         ),
         actions: [
           InkWell(
-            onTap: () => ref.read(searchResultNotifier.notifier).searchProduct(widget.searchText ?? ""),
+            onTap: () => ref.read(searchResultNotifierProvider.notifier).searchProduct(widget.searchText ?? ""),
             child: Container(
               margin: const EdgeInsets.only(right: 16),
               child: const Icon(
@@ -60,7 +61,7 @@ class _SearchResultWidgetState extends ConsumerState<SearchResultWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              searchText,
+              "Search $searchText",
               style: const TextStyle(
                 color: Colors.blue,
                 fontSize: 20,

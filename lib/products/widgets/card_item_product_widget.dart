@@ -1,6 +1,7 @@
 import 'package:demo_riverpod/products/models/product_model.dart';
 import 'package:demo_riverpod/products/pages/product_detail_page.dart';
 import 'package:demo_riverpod/products/pages/update_product_page.dart';
+import 'package:demo_riverpod/products/providers/favorite_list_provider.dart';
 import 'package:demo_riverpod/products/providers/shopping_cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,8 +13,14 @@ import '../providers/product_provider.dart';
 class CardItemProductWidget extends ConsumerWidget {
   final ProductModel? product;
   final int? quantityInShoppingCart;
+  final bool? isInFavoriteList;
 
-  CardItemProductWidget({Key? key, this.product, this.quantityInShoppingCart}) : super(key: key);
+  CardItemProductWidget({
+    Key? key,
+    this.product,
+    this.quantityInShoppingCart,
+    this.isInFavoriteList,
+  }) : super(key: key);
 
   final ScrollController _scrollController = ScrollController();
 
@@ -27,6 +34,7 @@ class CardItemProductWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    Map<String, dynamic> isShowLoadingAddToFavoriteList = ref.watch(isShowLoadingAddFavoriteListProvider(product!.id!));
     _showNotificationDeleteProduct(context, ref);
     return InkWell(
       onTap: () => Navigator.push(
@@ -89,7 +97,7 @@ class CardItemProductWidget extends ConsumerWidget {
                                 Row(
                                   children: [
                                     InkWell(
-                                      onTap: () => ref.read(shoppingCartNotifier.notifier).incrementOrDecrementQuantity(product!.id!, -1),
+                                      onTap: () => ref.read(shoppingCartNotifierProvider.notifier).incrementOrDecrementQuantity(product!.id!, -1),
                                       child: const Icon(
                                         Icons.remove_circle,
                                         size: 18,
@@ -107,7 +115,7 @@ class CardItemProductWidget extends ConsumerWidget {
                                     ),
                                     const SizedBox(width: 4),
                                     InkWell(
-                                      onTap: () => ref.read(shoppingCartNotifier.notifier).incrementOrDecrementQuantity(product!.id!, 1),
+                                      onTap: () => ref.read(shoppingCartNotifierProvider.notifier).incrementOrDecrementQuantity(product!.id!, 1),
                                       child: const Icon(
                                         Icons.add_circle,
                                         size: 18,
@@ -116,6 +124,18 @@ class CardItemProductWidget extends ConsumerWidget {
                                     ),
                                   ],
                                 ),
+                              if (isInFavoriteList!)
+                                if (isShowLoadingAddToFavoriteList["status"] == true && isShowLoadingAddToFavoriteList["productId"] == product!.id)
+                                  const SpinKitCircle(color: Colors.grey, size: 18)
+                                else
+                                  InkWell(
+                                    onTap: () => ref.read(favoriteListNotifierProvider.notifier).removeFromFavoriteList(product!.id!),
+                                    child: const Icon(
+                                      Icons.favorite,
+                                      size: 30,
+                                      color: Colors.red,
+                                    ),
+                                  ),
                             ],
                           ),
                           Text(
@@ -140,7 +160,7 @@ class CardItemProductWidget extends ConsumerWidget {
                   ],
                 ),
               ),
-              if (quantityInShoppingCart == null)
+              if (quantityInShoppingCart == null && !isInFavoriteList!)
                 InkWell(
                   onTap: () => Navigator.push(
                     context,
@@ -176,7 +196,15 @@ class CardItemProductWidget extends ConsumerWidget {
                       size: 24,
                     )
                   : InkWell(
-                      onTap: () => ref.read(productsNotifier.notifier).deleteProduct(product!.id ?? 0),
+                      onTap: () {
+                        if (quantityInShoppingCart != null) {
+                          ref.read(shoppingCartNotifierProvider.notifier).removeFromCart(product!.id!);
+                        } else if (isInFavoriteList!) {
+                          ref.read(favoriteListNotifierProvider.notifier).removeFromFavoriteList(product!.id!);
+                        } else {
+                          ref.read(productsNotifierProvider.notifier).deleteProduct(product!.id ?? 0);
+                        }
+                      },
                       child: Column(
                         children: const [
                           Icon(

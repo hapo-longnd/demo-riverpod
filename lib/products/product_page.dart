@@ -1,10 +1,14 @@
+import 'package:demo_riverpod/products/pages/favorite_list_page.dart';
 import 'package:demo_riverpod/products/pages/search_result_page.dart';
 import 'package:demo_riverpod/products/pages/shopping_cart_page.dart';
+import 'package:demo_riverpod/products/providers/favorite_list_provider.dart';
 import 'package:demo_riverpod/products/providers/product_provider.dart';
 import 'package:demo_riverpod/products/widgets/card_item_product_widget.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+import 'models/product_model.dart';
 
 class ProductsPage extends ConsumerStatefulWidget {
   const ProductsPage({
@@ -21,15 +25,19 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
   @override
   void initState() {
     // TODO: implement initState
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref.read(productsNotifier.notifier).fetchProduct();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(productsNotifierProvider.notifier).fetchProduct();
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(favoriteListNotifierProvider.notifier).fetchFavoriteList();
     });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final productProvider = ref.watch(productsNotifier);
+    AsyncValue<List<ProductModel>> productProvider = ref.watch(productsNotifierProvider);
+    AsyncValue<List<ProductModel>> favoriteListProvider = ref.watch(favoriteListNotifierProvider);
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -45,7 +53,7 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
             ),
           ),
           leading: InkWell(
-            onTap: () => ref.read(productsNotifier.notifier).fetchProduct(),
+            onTap: () => ref.read(productsNotifierProvider.notifier).fetchProduct(),
             child: const Icon(
               Icons.replay_circle_filled,
               color: Colors.green,
@@ -53,6 +61,20 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
             ),
           ),
           actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: InkWell(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const FavoriteListPage()),
+                ),
+                child: const Icon(
+                  Icons.favorite,
+                  size: 30,
+                  color: Colors.green,
+                ),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.only(right: 12.0),
               child: InkWell(
@@ -147,7 +169,10 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                             )
                           : ListView.builder(
                               itemCount: products.length,
-                              itemBuilder: (_, index) => CardItemProductWidget(product: products[index]),
+                              itemBuilder: (_, index) => CardItemProductWidget(
+                                product: products[index],
+                                isInFavoriteList: favoriteListProvider.value!.indexWhere((element) => element.id == products[index].id) != -1,
+                              ),
                             ),
                       error: (Object error, StackTrace stackTrace) => Center(
                         child: Text(
