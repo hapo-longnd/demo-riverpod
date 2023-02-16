@@ -85,8 +85,11 @@ class _ShoppingCartPageState extends ConsumerState<ShoppingCartPage> {
                       )
                     : ListView.builder(
                         itemCount: products.length,
-                        itemBuilder: (_, index) =>
-                            CardItemProductWidget(product: products[index].product, quantityInShoppingCart: products[index].quantity),
+                        itemBuilder: (_, index) => CardItemProductWidget(
+                          product: products[index].product,
+                          quantityInShoppingCart: products[index].quantity,
+                          isInFavoriteList: false,
+                        ),
                       ),
                 error: (Object error, StackTrace stackTrace) => Center(
                   child: Text(

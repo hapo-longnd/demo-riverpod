@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:demo_riverpod/products/models/category_model.dart';
 import 'package:demo_riverpod/products/models/product_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -37,9 +38,28 @@ class ProductDataSource {
     }
   }
 
+  Future<AsyncValue<List<CategoryModel>>> fetchListCategory({int? limit}) async {
+    try {
+      List<CategoryModel> listCategory = [];
+      final response = await Dio().get("https://api.escuelajs.co/api/v1/categories?limit=${limit ?? 100}");
+      if ((response.statusCode! - 200) < 100) {
+        if ((response.data as List).isNotEmpty) {
+          for (var element in response.data) {
+            listCategory.add(CategoryModel.fromJson(element));
+          }
+        }
+        return AsyncData(listCategory);
+      } else {
+        return AsyncError("Fetch list category fail", StackTrace.current);
+      }
+    } catch (e) {
+      return AsyncError("Something went wrong, Please try again!", StackTrace.current);
+    }
+  }
+
   Future<AsyncValue<String>> updateProduct(ProductModel product) async {
     try {
-      final response = await Dio().put("https://api.escuelajs.co/api/v1/products/${product.id}" , data: product.toJson());
+      final response = await Dio().put("https://api.escuelajs.co/api/v1/products/${product.id}", data: product.toJson());
       if ((response.statusCode! - 200) < 100) {
         return const AsyncData("Update product success");
       } else {

@@ -1,8 +1,10 @@
+import 'package:demo_riverpod/products/models/category_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../models/product_model.dart';
+import '../providers/favorite_list_provider.dart';
 import '../providers/search_result_provider.dart';
 import '../widgets/card_item_product_widget.dart';
 
@@ -19,16 +21,24 @@ class _SearchResultWidgetState extends ConsumerState<SearchResultWidget> {
   @override
   void initState() {
     // TODO: implement initState
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref.read(searchResultNotifierProvider.notifier).searchProduct(widget.searchText ?? "");
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(searchTextProvider.notifier).state =
+          "${RegExp(r'^-?[0-9]+$').hasMatch(widget.searchText ?? "") ? "Price" : "Title"} : ${widget.searchText}";
+      ref.read(categoryNotifierProvider.notifier).fetchListCategory();
     });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    AsyncValue<List<ProductModel>> searchResultProvider = ref.watch(searchResultNotifierProvider);
-    String searchText = ref.watch(searchTextProvider(widget.searchText ?? ""));
+    AsyncValue<List<ProductModel>> favoriteListProvider = ref.watch(favoriteListNotifierProvider);
+
+    AsyncValue<List<CategoryModel>> categoryProvider = ref.watch(categoryNotifierProvider);
+
+    int categorySelected = ref.watch(categorySelectedProvider);
+    AsyncValue<List<ProductModel>> listProductSearchResult = ref.watch(listProductSearchResultProvider);
+    AsyncValue<List<ProductModel>> listProductFilterByCategoryProvider = ref.watch(listProductFilteredByCategoryNotifierProvider);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
@@ -43,7 +53,7 @@ class _SearchResultWidgetState extends ConsumerState<SearchResultWidget> {
         ),
         actions: [
           InkWell(
-            onTap: () => ref.read(searchResultNotifierProvider.notifier).searchProduct(widget.searchText ?? ""),
+            // onTap: () => ref.read(searchResultNotifierProvider.notifier).searchProduct(widget.searchText ?? ""),
             child: Container(
               margin: const EdgeInsets.only(right: 16),
               child: const Icon(
@@ -61,18 +71,74 @@ class _SearchResultWidgetState extends ConsumerState<SearchResultWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Search $searchText",
+              "Search ${ref.watch(searchTextProvider)}",
               style: const TextStyle(
                 color: Colors.blue,
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: categoryProvider.when(
+                data: (categories) => categories.isEmpty
+                    ? const Text(
+                        "No data",
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: List.generate(
+                            categories.length,
+                            (index) => InkWell(
+                              onTap: () {
+                                ref.read(listProductFilteredByCategoryNotifierProvider.notifier).filterProductByCategory(categories[index].id!);
+                              },
+                              child: Container(
+                                margin: EdgeInsets.only(right: index == categories.length - 1 ? 0 : 6),
+                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                                decoration: BoxDecoration(
+                                  color: categorySelected == categories[index].id ? Colors.orange : Colors.green,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  categories[index].name ?? "",
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                error: (Object error, StackTrace stackTrace) => Center(
+                  child: Text(
+                    error.toString(),
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                loading: () => const Center(
+                  child: SpinKitCircle(color: Colors.green, size: 26),
+                ),
+              ),
+            ),
             Expanded(
               child: Container(
                 margin: const EdgeInsets.only(top: 8),
-                child: searchResultProvider.when(
-                  data: (state) => state.isEmpty
+                child: listProductFilterByCategoryProvider.when(
+                  data: (products) => products.isEmpty
                       ? const Center(
                           child: Text(
                             "No data",
@@ -84,10 +150,22 @@ class _SearchResultWidgetState extends ConsumerState<SearchResultWidget> {
                           ),
                         )
                       : ListView.builder(
-                          itemCount: state.length,
-                          itemBuilder: (_, index) => CardItemProductWidget(product: state[index]),
+                          itemCount: products.length,
+                          itemBuilder: (_, index) => CardItemProductWidget(
+                            product: products[index],
+                            isInFavoriteList: favoriteListProvider.value!.indexWhere((element) => element.id == products[index].id) != -1,
+                          ),
                         ),
-                  error: (error, _) => Container(),
+                  error: (Object error, StackTrace stackTrace) => Center(
+                    child: Text(
+                      error.toString(),
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
                   loading: () => const Center(
                     child: SpinKitCircle(color: Colors.green, size: 26),
                   ),

@@ -13,13 +13,13 @@ import '../providers/product_provider.dart';
 class CardItemProductWidget extends ConsumerWidget {
   final ProductModel? product;
   final int? quantityInShoppingCart;
-  final bool? isInFavoriteList;
+  final bool isInFavoriteList;
 
   CardItemProductWidget({
     Key? key,
     this.product,
     this.quantityInShoppingCart,
-    this.isInFavoriteList,
+    required this.isInFavoriteList,
   }) : super(key: key);
 
   final ScrollController _scrollController = ScrollController();
@@ -72,6 +72,16 @@ class CardItemProductWidget extends ConsumerWidget {
                         product!.images!.first,
                         width: 80,
                         fit: BoxFit.fill,
+                        errorBuilder: (_, __, ___) {
+                          return const SizedBox(
+                            width: 80,
+                            child: Icon(
+                              Icons.image,
+                              size: 30,
+                              color: Colors.grey,
+                            ),
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(
@@ -124,7 +134,7 @@ class CardItemProductWidget extends ConsumerWidget {
                                     ),
                                   ],
                                 ),
-                              if (isInFavoriteList!)
+                              if (isInFavoriteList)
                                 if (isShowLoadingAddToFavoriteList["status"] == true && isShowLoadingAddToFavoriteList["productId"] == product!.id)
                                   const SpinKitCircle(color: Colors.grey, size: 18)
                                 else
@@ -160,7 +170,7 @@ class CardItemProductWidget extends ConsumerWidget {
                   ],
                 ),
               ),
-              if (quantityInShoppingCart == null && !isInFavoriteList!)
+              if (quantityInShoppingCart == null && !isInFavoriteList)
                 InkWell(
                   onTap: () => Navigator.push(
                     context,
@@ -199,7 +209,7 @@ class CardItemProductWidget extends ConsumerWidget {
                       onTap: () {
                         if (quantityInShoppingCart != null) {
                           ref.read(shoppingCartNotifierProvider.notifier).removeFromCart(product!.id!);
-                        } else if (isInFavoriteList!) {
+                        } else if (isInFavoriteList) {
                           ref.read(favoriteListNotifierProvider.notifier).removeFromFavoriteList(product!.id!);
                         } else {
                           ref.read(productsNotifierProvider.notifier).deleteProduct(product!.id ?? 0);

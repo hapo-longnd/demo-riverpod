@@ -8,7 +8,7 @@ class ProductModel {
   List<String>? images;
   String? creationAt;
   String? updatedAt;
-  Category? category;
+  CategoryModel? category;
 
   ProductModel({this.id, this.title, this.price, this.description, this.images, this.creationAt, this.updatedAt, this.category});
 
@@ -20,7 +20,7 @@ class ProductModel {
     images = json['images'].cast<String>();
     creationAt = json['creationAt'];
     updatedAt = json['updatedAt'];
-    category = json['category'] != null ? Category.fromJson(json['category']) : null;
+    category = json['category'] != null ? CategoryModel.fromJson(json['category']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -44,7 +44,7 @@ class ProductModel {
     List<String>? images,
     String? creationAt,
     String? updatedAt,
-    Category? category,
+    CategoryModel? category,
   }) {
     return ProductModel(
       id: id ?? this.id,
