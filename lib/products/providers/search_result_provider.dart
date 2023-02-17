@@ -9,44 +9,30 @@ final searchTextProvider = StateProvider.autoDispose<String>((ref) => "");
 
 final categorySelectedProvider = StateProvider.autoDispose<int>((ref) => 0);
 
-final listProductSearchResultProvider = FutureProvider<List<ProductModel>>((ref) async {
-  List<ProductModel> temp = [];
-  String searchText = ref.read(searchTextProvider.notifier).state;
-  temp = ref
-      .read(productsNotifierProvider)
-      .value!
-      .where((element) => searchText.contains("Price")
-          ? element.price.toString().contains(searchText.split(":").last)
-          : element.title!.contains(searchText.split(":").last))
-      .toList();
-  return temp;
+final listProductSearchResultProvider = StateNotifierProvider.autoDispose<ListProductSearchResultNotifier, AsyncValue<List<ProductModel>>>((ref) {
+  return ListProductSearchResultNotifier(ref);
 });
 
-final listProductFilteredByCategoryNotifierProvider =
-    StateNotifierProvider.autoDispose<ListProductFilteredNotifier, AsyncValue<List<ProductModel>>>((ref) {
-  AsyncValue<List<ProductModel>> listProductSearched = ref.watch(listProductSearchResultProvider);
-  return ListProductFilteredNotifier(ref, listProductSearched.value!);
-});
-
-class ListProductFilteredNotifier extends StateNotifier<AsyncValue<List<ProductModel>>> {
+class ListProductSearchResultNotifier extends StateNotifier<AsyncValue<List<ProductModel>>> {
   final StateNotifierProviderRef ref;
-  final List<ProductModel> listProductSearched;
 
-  ListProductFilteredNotifier(this.ref, this.listProductSearched) : super(const AsyncLoading());
+  ListProductSearchResultNotifier(this.ref) : super(const AsyncLoading());
 
-  Future<void> filterProductByCategory(int categoryId) async {
-    ref.read(categorySelectedProvider.notifier).state = categoryId;
-    List<ProductModel> temp = listProductSearched;
+  Future<void> searchOrFilterProduct(String searchText, {int? categoryIdSelected}) async {
     state = const AsyncLoading();
-    await Future.delayed(const Duration(seconds: 2));
-    if (categoryId != 0) {
-      temp.removeWhere((element) => element.category!.id != categoryId);
+    AsyncValue<List<ProductModel>> productProvider = ref.read(productsNotifierProvider);
+    List<ProductModel> temp = productProvider.value!
+        .where((element) => searchText.contains("Price")
+            ? element.price.toString().contains(searchText.split(":").last)
+            : element.title!.contains(searchText.split(":").last))
+        .toList();
+    if (categoryIdSelected != null && categoryIdSelected != 0) {
+      temp.removeWhere((element) => element.category!.id != categoryIdSelected);
     }
+    await Future.delayed(const Duration(seconds: 1));
     state = AsyncData(temp);
   }
 }
-
-// ============================================================================================================
 
 final categoryNotifierProvider = StateNotifierProvider.autoDispose<CategoryResultNotifier, AsyncValue<List<CategoryModel>>>((ref) {
   return CategoryResultNotifier(ref, ref.watch(productRepository));

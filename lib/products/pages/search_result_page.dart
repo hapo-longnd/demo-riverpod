@@ -25,19 +25,18 @@ class _SearchResultWidgetState extends ConsumerState<SearchResultWidget> {
       ref.read(searchTextProvider.notifier).state =
           "${RegExp(r'^-?[0-9]+$').hasMatch(widget.searchText ?? "") ? "Price" : "Title"} : ${widget.searchText}";
       ref.read(categoryNotifierProvider.notifier).fetchListCategory();
+      ref.read(listProductSearchResultProvider.notifier).searchOrFilterProduct(widget.searchText ?? "");
     });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    AsyncValue<List<ProductModel>> favoriteListProvider = ref.watch(favoriteListNotifierProvider);
-
     AsyncValue<List<CategoryModel>> categoryProvider = ref.watch(categoryNotifierProvider);
-
     int categorySelected = ref.watch(categorySelectedProvider);
+
     AsyncValue<List<ProductModel>> listProductSearchResult = ref.watch(listProductSearchResultProvider);
-    AsyncValue<List<ProductModel>> listProductFilterByCategoryProvider = ref.watch(listProductFilteredByCategoryNotifierProvider);
+    AsyncValue<List<ProductModel>> favoriteListProvider = ref.watch(favoriteListNotifierProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -53,7 +52,10 @@ class _SearchResultWidgetState extends ConsumerState<SearchResultWidget> {
         ),
         actions: [
           InkWell(
-            // onTap: () => ref.read(searchResultNotifierProvider.notifier).searchProduct(widget.searchText ?? ""),
+            onTap: () {
+              ref.read(categorySelectedProvider.notifier).state = 0;
+              ref.read(listProductSearchResultProvider.notifier).searchOrFilterProduct(widget.searchText ?? "");
+            },
             child: Container(
               margin: const EdgeInsets.only(right: 16),
               child: const Icon(
@@ -97,7 +99,10 @@ class _SearchResultWidgetState extends ConsumerState<SearchResultWidget> {
                             categories.length,
                             (index) => InkWell(
                               onTap: () {
-                                ref.read(listProductFilteredByCategoryNotifierProvider.notifier).filterProductByCategory(categories[index].id!);
+                                ref.read(categorySelectedProvider.notifier).state = categories[index].id!;
+                                ref
+                                    .read(listProductSearchResultProvider.notifier)
+                                    .searchOrFilterProduct(widget.searchText ?? "", categoryIdSelected: categories[index].id!);
                               },
                               child: Container(
                                 margin: EdgeInsets.only(right: index == categories.length - 1 ? 0 : 6),
@@ -137,7 +142,7 @@ class _SearchResultWidgetState extends ConsumerState<SearchResultWidget> {
             Expanded(
               child: Container(
                 margin: const EdgeInsets.only(top: 8),
-                child: listProductFilterByCategoryProvider.when(
+                child: listProductSearchResult.when(
                   data: (products) => products.isEmpty
                       ? const Center(
                           child: Text(
