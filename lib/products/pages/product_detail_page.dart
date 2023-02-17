@@ -44,10 +44,13 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
   @override
   Widget build(BuildContext context) {
     AsyncValue<ProductModel> productDetailProvider = ref.watch(productsDetailNotifierProvider(widget.productId ?? -1));
+
     bool isShowLoadingAddToShoppingCart = ref.watch(isShowLoadingAddToCartProvider);
     String errorMessageAddToCard = ref.watch(errorMessageAddToCardProvider);
+
     AsyncValue<List<ProductModel>> favoriteListProvider = ref.watch(favoriteListNotifierProvider);
     Map<String, dynamic> isShowLoadingAddToFavoriteList = ref.watch(isShowLoadingAddFavoriteListProvider(null));
+
     _listenAddToCartSuccess();
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),

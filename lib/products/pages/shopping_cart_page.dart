@@ -29,6 +29,7 @@ class _ShoppingCartPageState extends ConsumerState<ShoppingCartPage> {
   Widget build(BuildContext context) {
     AsyncValue<List<ItemShoppingCartModel>> shoppingCartProvider = ref.watch(shoppingCartNotifierProvider);
     bool isShowLoadingFetchCart = ref.watch(isShowLoadingFetchCartProvider);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

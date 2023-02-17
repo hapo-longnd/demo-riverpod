@@ -45,6 +45,7 @@ class _UpdateProductPageState extends ConsumerState<UpdateProductPage> {
   @override
   Widget build(BuildContext context) {
     ValidateFormUpdateProductModel validateFormUpdateProductProvider = ref.watch(validateFormUpdateProductNotifierProvider);
+
     _showNotificationUpdateProduct();
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -97,7 +98,8 @@ class _UpdateProductPageState extends ConsumerState<UpdateProductPage> {
                       ),
                     ),
                     onChanged: (value) => ref.read(validateFormUpdateProductNotifierProvider.notifier).validateFieldTitle(value),
-                    onEditingComplete: () => ref.read(validateFormUpdateProductNotifierProvider.notifier).validateFieldTitle(_titleController.text.trim()),
+                    onEditingComplete: () =>
+                        ref.read(validateFormUpdateProductNotifierProvider.notifier).validateFieldTitle(_titleController.text.trim()),
                   ),
                   if (validateFormUpdateProductProvider.errorMessageTitle != null && validateFormUpdateProductProvider.errorMessageTitle!.isNotEmpty)
                     Container(
@@ -140,7 +142,8 @@ class _UpdateProductPageState extends ConsumerState<UpdateProductPage> {
                       ),
                     ),
                     onChanged: (value) => ref.read(validateFormUpdateProductNotifierProvider.notifier).validateFieldPrice(value),
-                    onEditingComplete: () => ref.read(validateFormUpdateProductNotifierProvider.notifier).validateFieldPrice(_priceController.text.trim()),
+                    onEditingComplete: () =>
+                        ref.read(validateFormUpdateProductNotifierProvider.notifier).validateFieldPrice(_priceController.text.trim()),
                   ),
                   if (validateFormUpdateProductProvider.errorMessagePrice != null && validateFormUpdateProductProvider.errorMessagePrice!.isNotEmpty)
                     Container(

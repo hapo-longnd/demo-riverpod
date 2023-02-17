@@ -26,7 +26,9 @@ class _FavoriteListPageState extends ConsumerState<FavoriteListPage> {
   @override
   Widget build(BuildContext context) {
     AsyncValue<List<ProductModel>> favoriteListProvider = ref.watch(favoriteListNotifierProvider);
+
     bool isShowLoadingFetchFavoriteList = ref.watch(isShowLoadingFetchFavoriteListProvider);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
